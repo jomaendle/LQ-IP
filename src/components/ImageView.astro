@@ -1,0 +1,63 @@
+---
+import { Image} from "astro:assets";
+
+interface Props {
+    image: {
+        src: string;
+        width: number;
+        height: number;
+    };
+    lqipImages: {
+        src: string;
+    }[];
+    index: number;
+}
+
+const { image, lqipImages, index } = Astro.props;
+
+---
+<astro-photo class="overflow-hidden">
+    <div
+            class="w-full bg-cover bg-center bg-no-repeat blur-xl transition-all duration-500 ease-in-out"
+            style={{
+                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                backgroundImage: `url(${lqipImages[index].src})`,
+            }}>
+        <Image class="w-full h-full object-contain opacity-0 transition-opacity duration-500"
+               width={image.width / 4}
+               quality={80}
+               height={image.height / 4} src={image}
+               alt="A preview image"/>
+    </div>
+</astro-photo>
+
+
+<script>
+    class AstroPhoto extends HTMLElement {
+        constructor() {
+            super();
+
+            const image = this.querySelector('img');
+
+            if (!image) {
+                console.error('No image found in the astro-photo component');
+                return;
+            }
+
+            if (image.complete) {
+                applyLoadedImageStyles(image);
+            } else {
+                image.addEventListener('load', () => {
+                    applyLoadedImageStyles(image);
+                });
+            }
+        }
+    }
+
+    customElements.define('astro-photo', AstroPhoto);
+
+    function applyLoadedImageStyles(image: HTMLImageElement) {
+        (image.parentElement as HTMLElement).classList.remove('blur-xl');
+        image.classList.remove('opacity-0');
+    }
+</script>
